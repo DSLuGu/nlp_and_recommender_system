@@ -20,7 +20,7 @@ public class Simple_ChatBot {
         ANSWER_LIST = new ArrayList<>();
         ANSWER_LIST.add("저는 데이터 분석을 좋아하지만 잘 못해요.");
         ANSWER_LIST.add("짜장면 먹었습니다. 중식 좋아해요.");
-        ANSWER_LIST.add("오늘은  비가 내리지 않습니다.");
+        ANSWER_LIST.add("오늘은 비가 내리지 않습니다.");
         ANSWER_LIST.add("짬뽕 먹었어요. 저는 중식을 좋아해요.");
 
         // 질문별 응답 시퀀스 세팅

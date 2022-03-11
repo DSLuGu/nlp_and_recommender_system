@@ -14,7 +14,7 @@
 >>
 >> 3.3. 답변의 다양성을 위해 여러 질문이 채택된 경우 랜던하게 챗봇 답변
 
-## __[Simple KoNLPy]__ Run example : JAVA
+## __[Simple Komoran]__ Run example : JAVA
 
 ***
 
@@ -34,7 +34,7 @@
 
 ***
 
-> [결과 화면]
+> [실행 결과]
 >
 >> ![week_01_python_result](../src/simple_konlpy_python_result.png)
 >
@@ -42,4 +42,26 @@
 >
 >> ```bash
 >> python ./week_02/python/simple_konlpy.py
+>> ```
+
+## __[Simple Komoran]__ Run example : Python
+
+***
+
+> [실행 결과] - 형태소 분석
+>
+>> ![simple_komoran_python_result](../src/simple_komoran_python_result.png)
+>
+> [실행 결과] - 개체명 인식 및 금칙어 구현
+>
+>> ![simple_ner_and_stopwords_python_result](../src/simple_ner_and_stopwords_python_result.png)
+>
+> [실행 결과] - 형태소 분석을 이용한 Week_01 Simple 챗봇 업데이트
+>
+>> ![week_02_simple_chatbot_python_result](../src/week_02_simple_chatbot_python_result.png)
+>
+> [실행 코드]
+>
+>> ```bash
+>> python ./week_02/python/main.py
 >> ```
