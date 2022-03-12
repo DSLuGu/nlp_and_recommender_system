@@ -16,6 +16,10 @@ from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 
 
+CUR_DIR = os.path.dirname(os.path.realpath(__file__))
+PAR_DIR = os.path.dirname(CUR_DIR)
+
+
 def argparser():
     
     p = argparse.ArgumentParser()
@@ -33,8 +37,6 @@ def get_news_list(url:str, headers=dict):
     
     if response.status_code != 200:
         print("Main - Requests error...", response.status_code)
-        print(url)
-        sys.exit()
     
     soup = BeautifulSoup(response.text, 'lxml')
     
@@ -51,8 +53,6 @@ def detail_news(url:str, headers:dict):
     
     if response.status_code != 200:
         print("Detail - Requests error...", response.status_code)
-        print(url)
-        sys.exit()
     
     soup = BeautifulSoup(response.text, 'lxml')
     
@@ -92,28 +92,35 @@ def data_to_fgf(data:dict, print_format='<__{}__>{}'):
 
 def main(config):
     '''
-    :정치:선거와 투표: https://news.zum.com/issuelist/60055642?
-    :사회:한반도 덮친 미세먼지: https://news.zum.com/issuelist/36787591?cm=news_issue_article_list&r=44
-    :경제:가상화폐 열풍: https://news.zum.com/issuelist/65406000?cm=news_issue_article_list&r=2
-    :IT/과학:메타버스가 온다: https://news.zum.com/issuelist/69911486?cm=news_issue_article_list&r=3
-    :국제:러시아, 우크라이나 침공: https://news.zum.com/issuelist/72968640?cm=news_issue_article_list&r=5
-    :문화:영화계 소식: https://news.zum.com/issuelist/40552661?cm=news_issue_article_list&r=14
+    :정치:선거와 투표: https://news.zum.com/issuelist/60055642?cm=news_issue_list&r=4&thumb=1
+    :사회:한반도 덮친 미세먼지: https://news.zum.com/issuelist/36787591?cm=news_issue_list&r=4&thumb=1
+    :경제:가상화폐 열풍: https://news.zum.com/issuelist/65406000?cm=news_issue_list&r=2&thumb=1
+    :IT/과학:메타버스가 온다: https://news.zum.com/issuelist/69911486?cm=news_issue_list&r=4&thumb=1
+    :국제:러시아, 우크라이나 침공: https://news.zum.com/issuelist/72968640?cm=news_issue_list&r=9&thumb=1
+    :문화:영화계 소식: https://news.zum.com/issuelist/40552661?cm=news_issue_list&r=10&thumb=1
     '''
-    
+    print("시작합니다...")
     base_url = 'https://news.zum.com/'
     
     url = config.url
-    paging_url = url + 'p={}'
+    paging_url = url + '&p={}'
     
     i, result = 1, []
     ua = UserAgent()
     headers = {'User-Agent': ua.random}
+    print(headers)
+    
+    news_set = set()
     
     while len(result) < 1000:
         try:
-            sub_section, news_list = get_news_list(url.format(i), headers)
-        except:
+            sub_section, news_list = get_news_list(paging_url.format(i), headers)
+        except Exception as e:
+            print(e)
+            headers = {'User-Agent': ua.random}
+            print(headers)
             i += 1
+            time.sleep(random.randint(5, 10))
             continue
         
         # time.sleep(random.randint(0, 10))
@@ -125,6 +132,10 @@ def main(config):
             
             a = news.select_one('a')
             info = news.select_one('ul.info')
+            
+            if a['href'].split('/')[-1].strip() in news_set:
+                print("중복 뉴스 :", base_url + a['href'])
+                continue
             
             data = OrderedDict()
             
@@ -147,6 +158,7 @@ def main(config):
             if len(data['content']) < 500: continue
             
             result.append(data)
+            news_set.add(a['href'].split('/')[-1].strip())
             if len(result) >= 1000: break
             
             # time.sleep(random.randint(0, 5))
@@ -156,7 +168,7 @@ def main(config):
         if i % 5 == 0: print(i, len(result))
     
     output = open(
-        os.path.join('./news', f"{a['data-select-tab']}_{sub_section}.txt"), 
+        os.path.join('./news', f"{a['data-select-tab']}.txt"), 
         'w', encoding='UTF-8'
     )
     for d in result:
