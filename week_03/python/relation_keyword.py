@@ -118,12 +118,23 @@ class RelationKeyword:
             sortedKwdCntMap = dict(sorted(kwdCntMap.items(), key=lambda x: x[1], reverse=True))
             
             for kwd in sortedKwdCntMap.keys():
+                if len(kwd.strip()) < 2: continue
                 corpus.add(kwd)
                 if len(corpus) >= limit: break
             
             rtnMap[sect] = corpus
+            self._corpus_to_file(corpus, out_fn=os.path.join(PAR_DIR, 'corpus', f'{sect}.tsv'))
         
         return rtnMap
+    
+    def _corpus_to_file(self, corpus:set, out_fn:str=None):
+        
+        import csv
+        with open(out_fn, 'w', newline='') as f:
+            writer = csv.writer(f, delimiter='\t')
+            writer.writerows(corpus)
+        
+        return None
     
     def _relation_kwds(self, newsMap:dict, nounsMap:dict, sectCorpus:dict):
         
@@ -185,7 +196,7 @@ class RelationKeyword:
         return None
     
     def execute(self):
-        # self._test()
+        
         newsMap = self._set_news_data()
         nounsMap = self._extract_noun_map(newsMap)
         sectKwdCntMap = self._cal_TF(nounsMap, newsMap)
