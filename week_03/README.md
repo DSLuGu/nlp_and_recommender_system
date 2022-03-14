@@ -27,3 +27,6 @@
 ***
 
 > [실행 결과]
+>
+>> ![week_03_relation_kwd_python_result](../src/week_03_relation_kwd_python_result.png)
+>>

@@ -144,8 +144,7 @@ class RelationKeyword:
                 for otherKwd in docKwdSet:
                     if (kwd == otherKwd) or (otherKwd not in corpus) or (len(otherKwd) < 2):
                         continue
-                    if kwd == otherKwd:
-                        print(kwd, otherKwd)
+                    
                     if otherKwd in kwdCntMap.keys():
                         kwdCntMap[otherKwd] += 1
                     else:
@@ -163,8 +162,8 @@ class RelationKeyword:
             sortedKwdCntMap = dict(sorted(kwdCntMap.items(), key=lambda x: x[1], reverse=True))
             
             sortedKwdList = []
-            for kwd in sortedKwdCntMap.keys():
-                sortedKwdList.append(kwd)
+            for sortedKwd in sortedKwdCntMap.keys():
+                sortedKwdList.append(sortedKwd)
                 if len(sortedKwdList) >= limit: break
             
             relationKwdMap[kwd] = sortedKwdList
