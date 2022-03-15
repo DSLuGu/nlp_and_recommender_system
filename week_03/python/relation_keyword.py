@@ -2,6 +2,10 @@ import os
 import re
 import sys
 
+import csv
+import pandas as pd
+
+import time
 from tqdm import tqdm
 
 from collections import defaultdict, OrderedDict
@@ -14,6 +18,9 @@ CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 PAR_DIR = os.path.dirname(os.path.dirname(CUR_DIR))
 NEWS_DATA_PATH = os.path.join(PAR_DIR, 'news')
 USER_DIC = os.path.join(PAR_DIR, 'dictionary', 'dic.user')
+f = open(os.path.join(PAR_DIR, 'dictionary', 'stopwords.txt'), 'r', encoding='utf-8', newline='')
+STOPWORDS = [l.strip() for l in f.readlines()]
+f.close()
 
 
 class RelationKeyword:
@@ -67,6 +74,7 @@ class RelationKeyword:
         for pk in newsMap.keys():
             item = OrderedDict()
             vo = newsMap[pk]
+            self.sect = vo.get('section')
             
             item['title'] = self._extract_nouns(vo.get('title'))
             item['summary'] = self._extract_nouns(vo.get('summary'))
@@ -82,6 +90,10 @@ class RelationKeyword:
         if doc.strip() == "": return nounList
         
         nounList = self.komoran.nouns(doc)
+        if self.sect == 'itscience':
+            print(self.komoran.pos(doc))
+            print()
+            time.sleep(10)
         
         return nounList
     
@@ -119,6 +131,8 @@ class RelationKeyword:
             
             for kwd in sortedKwdCntMap.keys():
                 if len(kwd.strip()) < 2: continue
+                if kwd in STOPWORDS: continue
+                if self._regex_kwd(kwd): continue
                 corpus.add(kwd)
                 if len(corpus) >= limit: break
             
@@ -129,12 +143,23 @@ class RelationKeyword:
     
     def _corpus_to_file(self, corpus:set, out_fn:str=None):
         
-        import csv
         with open(out_fn, 'w', newline='') as f:
             writer = csv.writer(f, delimiter='\t')
-            writer.writerows(corpus)
+            for kwd in corpus:
+                writer.writerow([kwd, ])
         
         return None
+    
+    def _regex_kwd(self, kwd):
+        
+        if re.search("\d+", kwd) is not None: # 숫자만으로 이루어진 경우
+            if re.search("\d+", kwd).group() == kwd: return True
+        if re.search("\.[\w/\-?=%.]+", kwd) is not None: # url 주소로만 이루어진 경우
+            if re.search("\.[\w/\-?=%.]+", kwd).group() == kwd: return True
+        if re.search("[\w]+[년|월|일|시|분|초]", kwd) is not None: # 날짜, 시간만 이루어진 경우
+            if re.search("[\w]+[년|월|일|시|분|초]", kwd).group() == kwd: return True
+        
+        return False
     
     def _relation_kwds(self, newsMap:dict, nounsMap:dict, sectCorpus:dict):
         
@@ -199,9 +224,9 @@ class RelationKeyword:
         
         newsMap = self._set_news_data()
         nounsMap = self._extract_noun_map(newsMap)
-        sectKwdCntMap = self._cal_TF(nounsMap, newsMap)
-        sectCorpus = self._sorted_kwd_map(sectKwdCntMap)
-        relationKwdMap = self._relation_kwds(newsMap, nounsMap, sectCorpus)
-        self._input_kwd(relationKwdMap)
+        # sectKwdCntMap = self._cal_TF(nounsMap, newsMap)
+        # sectCorpus = self._sorted_kwd_map(sectKwdCntMap)
+        # relationKwdMap = self._relation_kwds(newsMap, nounsMap, sectCorpus)
+        # self._input_kwd(relationKwdMap)
         
         return None
